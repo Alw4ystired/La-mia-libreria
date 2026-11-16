@@ -11,7 +11,16 @@
 
 // === Classi ===
 
-
+class Libro {
+    #id;
+    letto = false
+    constructor(_title, _author, _year) {
+        this.#id = crypto.randomUUID();
+		this.title = _title;
+		this.author = _author;
+		this.year = _year;
+    }
+}
 
 // === Stato (array di libri) ===
 
