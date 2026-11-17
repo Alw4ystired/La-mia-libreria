@@ -1,4 +1,4 @@
-// Mini-libreria — Settimana VII Giorno I — Versione completa
+// Mini-libreria — Settimana VII Giorno I — Versione completa con persistenza
 
 
 // === Classi ===
@@ -21,6 +21,10 @@ class Libro {
   formato() {
     return "cartaceo";
   }
+
+  static fromJSON(d) {
+    return Object.assign(new this(d.titolo, d.autore, d.anno), d);
+  }
 }
 
 class LibroDigitale extends Libro {
@@ -32,12 +36,35 @@ class LibroDigitale extends Libro {
   formato() {
     return `digitale (${this.dimensioneMb} MB)`;
   }
+
+  static fromJSON(d) {
+    return Object.assign(super.fromJSON(d), { dimensioneMb: d.dimensioneMb });
+  }
 }
 
 
-// === Stato ===
+// === Costante e Stato ===
 
-const libri = [];
+const STORAGE_KEY = "libri";
+
+// Carica i dati all'avvio
+let libri = caricaLibri();
+
+
+// === Funzioni di persistenza ===
+
+function salvaLibri() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(libri));
+}
+
+function caricaLibri() {
+  const datiSalvati = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+  return datiSalvati.map(d => 
+    d.dimensioneMb !== undefined 
+      ? LibroDigitale.fromJSON(d) 
+      : Libro.fromJSON(d)
+  );
+}
 
 
 // === Render ===
@@ -91,6 +118,10 @@ document.getElementById("aggiungi-libro").addEventListener("submit", (e) => {
   }
 
   libri.push(nuovo);
+  
+  // Punto 7: Salvo i dati su localStorage prima di renderizzare
+  salvaLibri();
+  
   renderLibri();
   e.target.reset();
   document.getElementById("campo-dimensione").setAttribute("hidden", "");
@@ -107,9 +138,23 @@ document.getElementById("lista-libri").addEventListener("click", (e) => {
   const libro = libri.find(l => l.id === id);
   if (libro) libro.segnaComeLetto();
 
+  // Punto 8: Salvo i dati su localStorage dopo la modifica
+  salvaLibri();
+  
   renderLibri();
 });
 
 
-// === Render iniziale (lista vuota) ===
+// === Render iniziale ===
 renderLibri();
+
+
+
+
+// Bottone svuota tutto
+document.getElementById('svuota-tutto').addEventListener('click', () => {
+  libri = [];
+  localStorage.removeItem(STORAGE_KEY);
+  renderLibri();
+});
+

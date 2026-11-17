@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini-libreria — Settimana VII Giorno I</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
   </head>
   <body>
 
@@ -52,7 +52,12 @@
       </section>
 
       <section class="lista-section">
+        <div class="lista-header">
         <h2>I tuoi libri (<span id="contatore">0</span>)</h2>
+        <!-- Bottone svuota tutto -->
+        <button id="svuota-tutto" class="btn-svuota">Svuota tutto</button>
+        </div>
+        <p>I libri sono salvati nel browser e sopravvivono al refresh.</p>
         <ul id="lista-libri" class="lista-libri">
           <!-- popolato da JavaScript -->
         </ul>
@@ -60,6 +65,6 @@
 
     </main>
 
-    <script src="script.js"></script>
+    <script src="assets/js/script.js"></script>
   </body>
 </html>
