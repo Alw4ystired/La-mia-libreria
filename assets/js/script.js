@@ -59,9 +59,9 @@ function salvaLibri() {
 
 function caricaLibri() {
   const datiSalvati = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
-  return datiSalvati.map(d => 
-    d.dimensioneMb !== undefined 
-      ? LibroDigitale.fromJSON(d) 
+  return datiSalvati.map(d =>
+    d.dimensioneMb !== undefined
+      ? LibroDigitale.fromJSON(d)
       : Libro.fromJSON(d)
   );
 }
@@ -78,7 +78,11 @@ function renderLibri() {
         <div class="meta">${l.autore} — ${l.anno}</div>
       </div>
       <div class="azioni">
-        ${l.letto ? '✓ letto' : '<button data-azione="leggi">Segna come letto</button>'}
+        ${l.letto
+      ? '<span class="badge-letto">✓ letto</span>'
+      : '<button data-azione="leggi">Segna come letto</button>'
+    }
+      <button data-azione="rimuovi" class="btn-rimuovi">Rimuovi</button>
       </div>
     </li>
   `).join("");
@@ -118,29 +122,33 @@ document.getElementById("aggiungi-libro").addEventListener("submit", (e) => {
   }
 
   libri.push(nuovo);
-  
-  // Punto 7: Salvo i dati su localStorage prima di renderizzare
   salvaLibri();
-  
   renderLibri();
   e.target.reset();
   document.getElementById("campo-dimensione").setAttribute("hidden", "");
 });
 
-// Event delegation: click su "Segna come letto" su una qualsiasi card
+// Event listener per i bottoni leggi/rimuovi
 document.getElementById("lista-libri").addEventListener("click", (e) => {
-  const bottone = e.target.closest("[data-azione='leggi']");
-  if (!bottone) return;
+  // Selezionatore generico: cattura qualsiasi elemento con l'attributo data-azione
+  const bottone = e.target.closest("[data-azione]");
+  if (!bottone) return; // Se non è un bottone con data-azione, esci
 
+  const azione = bottone.dataset.azione; // "leggi" o "rimuovi"
   const card = bottone.closest("li");
   const id = parseInt(card.dataset.id);
 
-  const libro = libri.find(l => l.id === id);
-  if (libro) libro.segnaComeLetto();
+  if (azione === "leggi") {
+    // Trova il libro e segnalo come letto
+    const libro = libri.find(l => l.id === id);
+    if (libro) libro.segnaComeLetto();
+  } else if (azione === "rimuovi") {
+    // Filtra l'array per escludere il libro con questo id
+    libri = libri.filter(l => l.id !== id);
+  }
 
-  // Punto 8: Salvo i dati su localStorage dopo la modifica
+  // Salva e ri-renderizza
   salvaLibri();
-  
   renderLibri();
 });
 
@@ -149,12 +157,11 @@ document.getElementById("lista-libri").addEventListener("click", (e) => {
 renderLibri();
 
 
-
-
-// Bottone svuota tutto
+// === Bottone Svuota Tutto ===
 document.getElementById('svuota-tutto').addEventListener('click', () => {
-  libri = [];
-  localStorage.removeItem(STORAGE_KEY);
-  renderLibri();
+  if (confirm("Sei sicuro di voler cancellare tutti i libri?")) {
+    libri = [];
+    localStorage.removeItem(STORAGE_KEY);
+    renderLibri();
+  }
 });
-
