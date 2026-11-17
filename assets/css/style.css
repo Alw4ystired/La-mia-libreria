@@ -1,9 +1,7 @@
-/* Mini-libreria — Settimana VII Giorno I
-   Stile minimal: il focus è sulla logica JS, non sul layout. */
+/* Mini-libreria — Settimana VII Giorno I */
 
-* {
-  box-sizing: border-box;
-}
+
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -27,65 +25,121 @@ body {
   text-align: center;
 }
 
-.site-header h1 {
-  margin: 0 0 8px;
+.site-header h1 { margin: 0 0 8px; }
+.site-header p  { margin: 0; opacity: 0.85; }
+
+
+/* === Form === */
+
+.form-section {
+  background: white;
+  padding: 24px;
+  margin-top: 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
-.site-header p {
-  margin: 0;
-  opacity: 0.85;
+.form-section h2 { margin-top: 0; }
+
+.form .campo {
+  margin-bottom: 12px;
 }
 
-/* Form */
-.btn-custom-blue {
-  background-color: #1d3557;
+.form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.form input,
+.form select {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+}
+
+.btn-primary {
+  background: hsl(220, 50%, 25%);
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 24px;
+  font-size: 1rem;
   border-radius: 4px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+  cursor: pointer;
+  margin-top: 8px;
 }
 
-.btn-custom-blue:hover {
-  background-color: #152740;
-  color: white;
+.btn-primary:hover {
+  background: hsl(220, 50%, 18%);
 }
 
-.form-label {
-  margin-bottom: 0.25rem;
-  color: #333;
+
+/* === Lista libri === */
+
+.lista-section {
+  margin-top: 28px;
 }
 
-/* Lista libri */
-.lista-section h2 {
-  color: #1a1a1a;
+.lista-libri {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-#lista-libri li {
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 15px 20px;
+.lista-libri li {
+  background: white;
+  padding: 16px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  border-left: 4px solid hsl(220, 50%, 25%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Badge per stato letto/non letto */
-.badge-letto {
-  background-color: #28a745;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
+.lista-libri li.letto {
+  border-left-color: hsl(140, 50%, 35%);
+  opacity: 0.65;
 }
 
-.badge-non-letto {
-  background-color: #dc3545;
-  color: white;
-  padding: 4px 8px;
+.lista-libri .info {
+  flex: 1;
+}
+
+.lista-libri .titolo {
+  font-weight: bold;
+}
+
+.lista-libri .meta {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.lista-libri .badge-formato {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  background: #eee;
+  color: #555;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.lista-libri .azioni button {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
   border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.lista-libri .azioni button:hover {
+  background: hsl(140, 50%, 95%);
+  border-color: hsl(140, 50%, 35%);
 }
