@@ -165,3 +165,32 @@ document.getElementById('svuota-tutto').addEventListener('click', () => {
     renderLibri();
   }
 });
+
+// Costanti per l'API
+const API_URL = "https://openlibrary.org/search.json";
+
+// Variabili per l'annullamento delle richieste
+let controller;
+
+// Seleziono gli elementi DOM della ricerca
+const inputCerca = document.getElementById("cerca");
+const spinner = document.getElementById("spinner");
+const erroreDiv = document.getElementById("errore");
+const risultatiLista = document.getElementById("risultati");
+
+
+// === Funzioni Helper ===
+
+function mostraSpinner() {
+  spinner.removeAttribute("hidden");
+  erroreDiv.setAttribute("hidden", "");
+}
+
+function nascondiSpinner() {
+  spinner.setAttribute("hidden", "");
+}
+
+function mostraErrore(msg) {
+  erroreDiv.textContent = msg;
+  erroreDiv.removeAttribute("hidden");
+}
