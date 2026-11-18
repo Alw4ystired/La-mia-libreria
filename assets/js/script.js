@@ -174,12 +174,14 @@ const risultatiLista = document.getElementById("risultati");
 // === Funzioni Helper ===
 
 function mostraSpinner() {
-  spinner.removeAttribute("hidden");
+  spinner.classList.remove("d-none");
+  spinner.classList.add("d-flex");
   erroreDiv.setAttribute("hidden", "");
 }
 
 function nascondiSpinner() {
-  spinner.setAttribute("hidden", "");
+  spinner.classList.add("d-none");
+  spinner.classList.remove("d-flex");
 }
 
 function mostraErrore(msg) {
