@@ -1,4 +1,4 @@
-// Mini-libreria — Settimana VII Giorno I — Versione completa con persistenza
+// Mini-libreria — Settimana VII Giorno I — Versione completa con persistenza e ricerca
 
 
 // === Classi ===
@@ -47,7 +47,6 @@ class LibroDigitale extends Libro {
 
 const STORAGE_KEY = "libri";
 
-// Carica i dati all'avvio
 let libri = caricaLibri();
 
 
@@ -67,7 +66,7 @@ function caricaLibri() {
 }
 
 
-// === Render ===
+// === Render libreria personale ===
 
 function renderLibri() {
   const html = libri.map(l => `
@@ -92,9 +91,8 @@ function renderLibri() {
 }
 
 
-// === Eventi ===
+// === Eventi libreria ===
 
-// Mostra/nasconde il campo "dimensione" in base al formato selezionato
 document.getElementById("formato").addEventListener("change", (e) => {
   const campo = document.getElementById("campo-dimensione");
   if (e.target.value === "digitale") {
@@ -104,7 +102,6 @@ document.getElementById("formato").addEventListener("change", (e) => {
   }
 });
 
-// Submit del form: crea l'istanza giusta e la aggiunge all'array
 document.getElementById("aggiungi-libro").addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -128,26 +125,21 @@ document.getElementById("aggiungi-libro").addEventListener("submit", (e) => {
   document.getElementById("campo-dimensione").setAttribute("hidden", "");
 });
 
-// Event listener per i bottoni leggi/rimuovi
 document.getElementById("lista-libri").addEventListener("click", (e) => {
-  // Selezionatore generico: cattura qualsiasi elemento con l'attributo data-azione
   const bottone = e.target.closest("[data-azione]");
-  if (!bottone) return; // Se non è un bottone con data-azione, esci
+  if (!bottone) return;
 
-  const azione = bottone.dataset.azione; // "leggi" o "rimuovi"
+  const azione = bottone.dataset.azione;
   const card = bottone.closest("li");
   const id = parseInt(card.dataset.id);
 
   if (azione === "leggi") {
-    // Trova il libro e segnalo come letto
     const libro = libri.find(l => l.id === id);
     if (libro) libro.segnaComeLetto();
   } else if (azione === "rimuovi") {
-    // Filtra l'array per escludere il libro con questo id
     libri = libri.filter(l => l.id !== id);
   }
 
-  // Salva e ri-renderizza
   salvaLibri();
   renderLibri();
 });
@@ -166,13 +158,13 @@ document.getElementById('svuota-tutto').addEventListener('click', () => {
   }
 });
 
-// Costanti per l'API
+
+// API di operlibrary.org
+
 const API_URL = "https://openlibrary.org/search.json";
 
-// Variabili per l'annullamento delle richieste
 let controller;
 
-// Seleziono gli elementi DOM della ricerca
 const inputCerca = document.getElementById("cerca");
 const spinner = document.getElementById("spinner");
 const erroreDiv = document.getElementById("errore");
@@ -194,3 +186,124 @@ function mostraErrore(msg) {
   erroreDiv.textContent = msg;
   erroreDiv.removeAttribute("hidden");
 }
+
+
+// === Funzione di ricerca ===
+
+function cerca(query) {
+  controller?.abort();
+  controller = new AbortController();
+  const { signal } = controller;
+
+  mostraSpinner();
+
+  const url = new URL(API_URL);
+  url.searchParams.set("q", query);
+  url.searchParams.set("limit", 10);
+
+  fetch(url, { signal })
+    .then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then((dati) => {
+      renderRisultati(dati.docs);
+    })
+    .catch((err) => {
+      if (err.name === "AbortError") return;
+      mostraErrore(err.message);
+    })
+    .finally(() => {
+      if (!signal.aborted) nascondiSpinner();
+    });
+}
+
+
+// Render risultati
+
+function renderRisultati(docs) {
+  //Se non ci sono risultati, inserisco un solo <li> con replaceChildren
+  if (docs.length === 0) {
+    const liVuoto = document.createElement("li");
+    liVuoto.textContent = "Nessun risultato trovato.";
+    risultatiLista.replaceChildren(liVuoto);
+    return;
+  }
+
+  // Altrimenti mappo i documenti
+  const righe = docs.map((d) => {
+    // Gestione dei dati mancanti con optional chaining e nullish coalescing
+    const autore = d.author_name?.[0] ?? "Autore sconosciuto";
+    const anno = d.first_publish_year ?? "?";
+
+    // Creo la struttura <li>
+    const li = document.createElement("li");
+
+    // Contenitore per le info
+    const divInfo = document.createElement("div");
+    divInfo.className = "info";
+
+    // Titolo
+    const spanTitolo = document.createElement("span");
+    spanTitolo.className = "titolo";
+    spanTitolo.textContent = d.title;
+
+    // Meta (autore - anno)
+    const divMeta = document.createElement("div");
+    divMeta.className = "meta";
+    divMeta.textContent = `${autore} - ${anno}`;
+
+    // Assemblo le info
+    divInfo.appendChild(spanTitolo);
+    divInfo.appendChild(divMeta);
+
+    // Bottone "Aggiungi" con dataset
+    const bottone = document.createElement("button");
+    bottone.textContent = "Aggiungi";
+    bottone.addEventListener('click', () => {
+        const nuovoLibro = new Libro(d.title, autore, anno);
+
+  // Aggiungo all'array, salvo e aggiorno la vista
+  libri.push(nuovoLibro);
+  salvaLibri();
+  renderLibri();
+
+  // Feedback visivo: disabilito il bottone e cambio il testo
+  bottone.textContent = "✓ Aggiunto";
+  bottone.disabled = true;
+      
+    });
+
+    // Salvo i dati nel dataset per recuperarli al click
+    bottone.dataset.titolo = d.title;
+    bottone.dataset.autore = autore;
+    bottone.dataset.anno = anno;
+
+    // Assemblo il <li> completo
+    li.appendChild(divInfo);
+    li.appendChild(bottone);
+
+    return li;
+  });
+
+  // Inserisco tutto nella lista con replaceChildren
+  risultatiLista.replaceChildren(...righe);
+}
+
+
+// === Debounce sull'input ===
+
+let timeoutId;
+
+inputCerca.addEventListener("input", (e) => {
+  clearTimeout(timeoutId);
+  timeoutId = setTimeout(() => {
+    const query = e.target.value.trim();
+    if (query.length > 0) {
+      cerca(query);
+    } else {
+      risultatiLista.replaceChildren();
+      nascondiSpinner();
+    }
+  }, 400);
+});

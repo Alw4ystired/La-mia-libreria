@@ -24,8 +24,11 @@
         <input type="text" id="cerca" placeholder="es. harari, tolkien...">
       </div>
 
-      <!-- Spinner di caricamento (nascosto di default) -->
-      <div id="spinner" class="spinner" hidden>Caricamento in corso...</div>
+      <!-- Spinner (nascosto di default) -->
+      <div id="spinner" class="d-flex align-items-center gap-2 text-primary" hidden>
+        <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+        <span>Caricamento in corso...</span>
+      </div>
 
       <!-- Messaggio di errore (nascosto di default) -->
       <div id="errore" class="alert alert-danger" hidden></div>
